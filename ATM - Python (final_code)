@@ -1,0 +1,187 @@
+ATM Simulation Coding
+Scenario:
+You are tasked with developing a basic ATM simulation using Python. The ATM should be able to handle five customers, each with their unique account number, balance, and PIN code. Additionally, users should have the ability to change their PIN. Write a program that provides the following functionality:
+Requirements:
+Customer Details: Predefine details for 5 customers: Account number (e.g., 1001, 1002, etc.) Balance (e.g., 5000, 10000, etc.) PIN code (e.g., 1234, 5678, etc.) Store these details in a suitable data structure (like a dictionary). Basic Functions: The ATM should provide the following functionalities:
+Login: Prompt the user to enter their account number and PIN. Allow access if the details match. Provide three attempts for entering the correct PIN.
+Check Balance: Display the current balance of the logged-in user.
+Withdraw Money: Allow the user to withdraw an amount. Check if the amount is valid (greater than 0 and less than or equal to the balance). Deduct the amount from the balance.
+Deposit Money: Allow the user to deposit an amount. Add the amount to the user's balance.
+Change PIN: Allow the user to update their PIN. Steps: Verify the current PIN. Prompt the user to enter a new PIN and confirm it. If confirmed, update the PIN.
+Logout: Allow the user to log out and return to the login screen for another customer.
+Error Handling: Display appropriate error messages for invalid inputs, such as incorrect account number, incorrect PIN, insufficient balance, etc. Ensure the user cannot withdraw more than the current balance.
+Exit: Provide an option to terminate the ATM program.
+
+import pandas as pd
+import sys
+
+# Creating a DataFrame from a dictionary
+data = {
+    "Name": ["Harke","Gofle","Torpe","Mailo","Tanke"],
+    "Account": [10011,10012,10013,10014,10015],
+    "PIN": [1111,2222,3333,4444,5555],
+    "Balance": [50047,78,56254,210,1234]
+}
+
+customers = pd.DataFrame(data)
+
+
+
+# Customer Authentication
+
+def authenticate_user(customers):
+    print("Welcome to Garibo Bank !")
+    
+    while True: # Loop until successful login
+        account = int(input("Please insert your 5 digit account number: "))
+
+        # check if account exists
+        if account in customers["Account"].values:
+            pin = int(input("Please insert your 4 digit PIN: "))
+            # check if the account exists
+            correct_pin = customers.loc[customers["Account"] == account,"PIN"].values[0]
+            if pin == correct_pin:
+                print("Log-in Sucessful.")
+                return account 
+            else:
+                print("Incorrect PIN, Please Try Again.")
+                
+        else:
+            print("Account not found, Please Try Again.")
+
+
+
+
+# check balance function
+
+def check_balance(account, customers):
+    while True:
+        
+        balance = customers.loc[customers["Account"] == account,"Balance"].values[0]
+        print(f"Your current balance is : ${balance}")
+        print("Do you want to continue or logout?")
+        print("1. Continue to main menu")
+        print("2. Logout")
+        
+        try:
+            choice = int(input("What option would you like to choose: "))
+        
+            if choice == 1:
+                return
+            elif choice == 2:
+                print("Thank you for being loyal customer to Garibo Bank. Have a good day !!")
+                sys.exit()
+                
+        except ValueError:
+            print("Option Not Available. Please enter a valid response.")
+
+
+
+
+
+# withdraw function
+
+def withdraw(account, customers):
+    while True:
+        balance = customers.loc[customers["Account"] == account,"Balance"].values[0]
+        print(f"Your current balance is : ${balance}")
+        withdraw_amt = int(input("Please enter the amount to withdraw: $"))
+        if withdraw_amt > balance:
+            print("Insufficient balance. Please enter the amount again.")
+        else:
+            new_balance = balance - withdraw_amt
+            print(f"Withdrawing ${withdraw_amt} from account ${account}")
+            print(f"The new balance is ${new_balance}")
+            # update the balance in dateframe
+            customers.loc[customers["Account"] == account, "Balance"] = new_balance
+            return      
+
+
+
+
+# deposit function
+
+def deposit(account, customers):
+    balance = customers.loc[customers["Account"] == account, "Balance"].values[0]
+    print(f"Your current balance is : ${balance}")
+    deposit_amt = int(input("Please enter the amount to deposit: "))
+    print(f"Depositing ${deposit_amt} to account ${account}")
+    new_balance = balance + deposit_amt
+    # update the balance in dateframe
+    customers.loc[customers["Account"] == account,"Balance"] = new_balance
+    print("Deposit Complete!")
+    print(f"The new balance is ${new_balance}")
+    return
+
+
+
+
+
+# change pin function
+
+def change_pin(account, customers):
+    while True:
+        input_pin = int(input("Please insert your PIN for verification: "))
+        correct_pin = customers.loc[customers["Account"] == account,"PIN"].values[0]
+        if input_pin == correct_pin:
+            while True:
+                new_pin = int(input("Please enter the new PIN: "))
+                if len(str(new_pin)) == 4:
+                    second_pin = int(input("Please enter the new PIN again: "))
+                    if new_pin == second_pin:
+                        customers.loc[customers["Account"] == account,"PIN"] = new_pin
+                        print("New PIN approved. The PIN has been changed.")
+                        return
+                    else:
+                        print("PIN does not match. Please try again.")
+                else:
+                    print("New PIN not approved. PIN must be 4 digits.")
+        else:
+            print("Incorrect PIN. Please try again.")
+
+
+
+
+
+# Main Menu Function
+
+def main_menu(account, customers):
+    while True:
+        name = customers.loc[customers["Account"] == account,"Name"].values[0]
+        print(f"Hi {name}. Welcome to your account #{account} at Garibo Bank.")
+        print("Press the number to select a function.")
+        print("1. Check Balance")
+        print("2. Withdraw Money")
+        print("3. Deposit Money")
+        print("4. Change PIN")
+        print("5. Logout")
+        choice = int(input("What option would you like to choose: "))
+        
+        if choice == 1:
+            check_balance(account, customers)
+            
+        elif choice == 2:
+            withdraw(account, customers)
+        
+        elif choice == 3:
+            deposit(account, customers)
+            
+        elif choice == 4:
+            change_pin(account, customers)
+        
+        elif choice == 5:
+            print("Thank you for being loyal customer to Garibo Bank. Have a good day !!")
+            break
+        
+        else:
+            print("Option Not Available. Please enter a valid response.") 
+
+
+
+# calling the function
+
+if __name__ == "__main__":
+    user_account = authenticate_user(customers)
+    
+    if user_account:
+        main_menu(user_account, customers)
