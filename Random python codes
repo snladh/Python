@@ -1,0 +1,5 @@
+for a in range(0 ,21):
+    if a%2==0:
+        print("  even number: " ,a, end = "")
+    else:
+        print("  odd number : " ,a, end ="")
